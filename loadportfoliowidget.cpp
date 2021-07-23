@@ -10,16 +10,20 @@ LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onAddStockClicked()));
     connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onLoadDataClicked()));
+
     ui->pushButton_2->setEnabled(false);
     ui->progressBar->setVisible(false);
     ui->lineEdit->setText("0");
+    ui->label->setVisible(false);
+    ui->lineEdit->setVisible(false);
+    ui->pushButton_3->setVisible(false);
+    ui->dateEdit->setDate(QDate::currentDate());
+
     m_vStockInfo.clear();
     m_pLoadStockInfoWorker = new LoadSockInfoWorker(this);
     connect(m_pLoadStockInfoWorker, SIGNAL(queryStockInfoDone(int)), this, SLOT(onQueryStockInfoDone(int)));
     connect(m_pLoadStockInfoWorker, SIGNAL(queryStockProgress(QString, int)),
              this, SLOT(onQueryStockProgress(QString, int)));
-
-
 }
 
 LoadPortfolioWidget::~LoadPortfolioWidget()
@@ -68,10 +72,10 @@ void LoadPortfolioWidget::onLoadDataClicked()
     cleanStockInfoList();
     int tableRow = ui->tableWidget->rowCount();
     QDate today = QDate::currentDate();
-    QDate halfYearAgo = today.addMonths(-12);
+    QDate lastRebalaceDate = ui->dateEdit->date();
 
     QString strToday = today.toString("yyyy-MM-dd");
-    QString strHalfYear = halfYearAgo.toString("yyyy-MM-dd");
+    QString strLastRebalanceDate = lastRebalaceDate.toString("yyyy-MM-dd");
 
     for (int i = 0; i < tableRow; i++) {
         QTableWidgetItem *nameItem = ui->tableWidget->item(i, 0);
@@ -83,7 +87,7 @@ void LoadPortfolioWidget::onLoadDataClicked()
         int holding = holdingItem->text().toInt();
         double targetRatio = targetRatioItem->text().toDouble();
         m_vStockInfo.push_back(new StockInfo(stockName,
-                                         strHalfYear,
+                                         strLastRebalanceDate,
                                          strToday,
                                          quote,
                                          holding,
@@ -133,7 +137,11 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
         ui->tableWidget->setItem(i, static_cast<size_t>(5), new QTableWidgetItem(QString::number(vReturn[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(100.0 * vNetVal[i]/totalVal)));
     }
+
     ui->pushButton_2->setEnabled(true);
+    ui->label->setVisible(true);
+    ui->lineEdit->setVisible(true);
+    ui->pushButton_3->setVisible(true);
 }
 
 
