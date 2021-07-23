@@ -11,17 +11,20 @@ LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onAddStockClicked()));
     connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onLoadDataClicked()));
     ui->pushButton_2->setEnabled(false);
+    ui->progressBar->setVisible(false);
+    ui->lineEdit->setText("0");
     m_vStockInfo.clear();
     m_pLoadStockInfoWorker = new LoadSockInfoWorker(this);
     connect(m_pLoadStockInfoWorker, SIGNAL(queryStockInfoDone(int)), this, SLOT(onQueryStockInfoDone(int)));
+    connect(m_pLoadStockInfoWorker, SIGNAL(queryStockProgress(QString, int)),
+             this, SLOT(onQueryStockProgress(QString, int)));
+
+
 }
 
 LoadPortfolioWidget::~LoadPortfolioWidget()
 {
-    for (size_t i = 0; i < m_vStockInfo.size(); i++)
-        delete m_vStockInfo[i];
-
-    m_vStockInfo.clear();
+    cleanStockInfoList();
     delete ui;
 }
 
@@ -61,7 +64,7 @@ void LoadPortfolioWidget::onLoadDataClicked()
 {
     qDebug() << "Load Data Clicked";
     ui->pushButton_2->setEnabled(false);
-
+    cleanStockInfoList();
     int tableRow = ui->tableWidget->rowCount();
     QDate today = QDate::currentDate();
     QDate halfYearAgo = today.addMonths(-12);
@@ -91,8 +94,15 @@ void LoadPortfolioWidget::onLoadDataClicked()
 
 void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
 {
-    if (evNum != 0)
+    ui->progressBar->setVisible(false);
+    if (evNum != 0) {
+        QMessageBox warningBox;
+        warningBox.setText("Error while query information");
+        warningBox.setStandardButtons(QMessageBox::Close);
+        ui->pushButton_2->setEnabled(true);
+        cleanStockInfoList();
         return;
+    }
 
     vector<double> vPrice;
     vector<double> vNetVal;
@@ -123,4 +133,19 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
         ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(100.0 * vNetVal[i]/totalVal)));
     }
     ui->pushButton_2->setEnabled(true);
+}
+
+
+void LoadPortfolioWidget::onQueryStockProgress(QString stockName, int progress)
+{
+    ui->progressBar->setVisible(true);
+    ui->progressBar->setValue(progress);
+}
+
+void LoadPortfolioWidget::cleanStockInfoList()
+{
+    for (size_t i = 0; i < m_vStockInfo.size(); i++)
+        delete m_vStockInfo[i];
+
+    m_vStockInfo.clear();
 }

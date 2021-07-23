@@ -10,6 +10,7 @@
 #include "curl_utils.hpp"
 #include "time_utils.hpp"
 #include <QDate>
+#include <QMessageBox>
 #include <vector>
 #include <stockinfo.h>
 #include "loadsockinfoworker.h"
@@ -29,7 +30,9 @@ private slots:
     void onLoadDataClicked();
     void onAddStockClicked();
     void onQueryStockInfoDone(int);
+    void onQueryStockProgress(QString, int);
 private:
+    void cleanStockInfoList();
     Ui::LoadPortfolioWidget *ui;
     vector<StockInfo*> m_vStockInfo;
     LoadSockInfoWorker *m_pLoadStockInfoWorker;

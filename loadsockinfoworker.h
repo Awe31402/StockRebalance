@@ -16,6 +16,7 @@ public:
     void run();
 signals:
     void queryStockInfoDone(int);
+    void queryStockProgress(QString, int);
 private:
     vector<StockInfo*> m_vStockInfo;
 };
