@@ -19,7 +19,6 @@ StockInfo::StockInfo(QString name, QString startDate, QString endDate,
 
 StockInfo::~StockInfo()
 {
-    qDebug() << "Delete " << m_Name;
     if (m_Quote != nullptr) {
         delete m_Quote;
         m_Quote = nullptr;
@@ -68,7 +67,7 @@ double StockInfo::GetCurrentPrice()
 
 double StockInfo::GetFirstPrice()
 {
-    Spot spot = m_Quote->getSpot((size_t) 0);
+    Spot spot = m_Quote->getSpot(static_cast<size_t>(0));
     return spot.getAdjClose();
 }
 

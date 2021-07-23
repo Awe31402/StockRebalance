@@ -34,6 +34,7 @@ void LoadPortfolioWidget::onAddStockClicked()
                                                        "/home",
                                                        tr("(*csv)"));
     m_vStockInfo.clear();
+    ui->tableWidget->setRowCount(0);
     QFile file(strFileName);
     if (!file.open(QIODevice::ReadOnly))
         return;
