@@ -29,6 +29,7 @@ public:
 private slots:
     void onLoadDataClicked();
     void onAddStockClicked();
+    void onRebalanceClicked();
     void onQueryStockInfoDone(int);
     void onQueryStockProgress(QString, int);
 private:
@@ -36,6 +37,7 @@ private:
     Ui::LoadPortfolioWidget *ui;
     vector<StockInfo*> m_vStockInfo;
     LoadSockInfoWorker *m_pLoadStockInfoWorker;
+    double m_TotalVal;
 };
 
 #endif // LOADPORTFOLIOWIDGET_H

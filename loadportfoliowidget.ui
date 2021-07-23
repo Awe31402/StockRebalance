@@ -46,7 +46,7 @@
            </column>
            <column>
             <property name="text">
-             <string>New Column</string>
+             <string>Holding</string>
             </property>
            </column>
            <column>
@@ -79,6 +79,13 @@
             <widget class="QPushButton" name="pushButton_3">
              <property name="text">
               <string>Start Rebalnce Calc</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Actual Join Dollars is : </string>
              </property>
             </widget>
            </item>

@@ -1,6 +1,8 @@
 #include "loadportfoliowidget.h"
 #include "ui_loadportfoliowidget.h"
 #include <iostream>
+#include <math.h>
+
 using namespace std;
 
 LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
@@ -10,6 +12,7 @@ LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onAddStockClicked()));
     connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(onLoadDataClicked()));
+    connect(ui->pushButton_3, SIGNAL(clicked()), this, SLOT(onRebalanceClicked()));
 
     ui->pushButton_2->setEnabled(false);
     ui->progressBar->setVisible(false);
@@ -17,10 +20,13 @@ LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
     ui->label->setVisible(false);
     ui->lineEdit->setVisible(false);
     ui->pushButton_3->setVisible(false);
-    ui->dateEdit->setDate(QDate::currentDate());
+    ui->label_3->setVisible(false);
+
+    ui->dateEdit->setDate(QDate::currentDate().addMonths(-6));
 
     m_vStockInfo.clear();
     m_pLoadStockInfoWorker = new LoadSockInfoWorker(this);
+
     connect(m_pLoadStockInfoWorker, SIGNAL(queryStockInfoDone(int)), this, SLOT(onQueryStockInfoDone(int)));
     connect(m_pLoadStockInfoWorker, SIGNAL(queryStockProgress(QString, int)),
              this, SLOT(onQueryStockProgress(QString, int)));
@@ -30,6 +36,42 @@ LoadPortfolioWidget::~LoadPortfolioWidget()
 {
     cleanStockInfoList();
     delete ui;
+}
+
+void LoadPortfolioWidget::onRebalanceClicked()
+{
+    double joinDollars = ui->lineEdit->text().toDouble();
+    double totalAddJoin = m_TotalVal + joinDollars;
+    double totalJoin = 0.0;
+
+    ui->tableWidget->setColumnCount(11);
+    ui->tableWidget->setHorizontalHeaderItem(7, new QTableWidgetItem("Add Value"));
+    ui->tableWidget->setHorizontalHeaderItem(8, new QTableWidgetItem("Buy Count"));
+    ui->tableWidget->setHorizontalHeaderItem(9, new QTableWidgetItem("Net Value after rebalance"));
+    ui->tableWidget->resizeColumnToContents(9);
+    ui->tableWidget->setHorizontalHeaderItem(10, new QTableWidgetItem("Ratio after rebalance"));
+    ui->tableWidget->resizeColumnToContents(10);
+
+    for (int i = 0; i < ui->tableWidget->rowCount(); i++)
+    {
+        double targetRatio = ui->tableWidget->item(i, 2)->text().toDouble();
+        double netAfterRebalance = totalAddJoin * targetRatio / 100.0;
+
+        double addValue = netAfterRebalance - m_vStockInfo[i]->GetNetValue();
+        double price = m_vStockInfo[i]->GetCurrentPrice();
+        int buyCount = static_cast<int> (floor( addValue/price));
+        double actNetAfterRebalance = m_vStockInfo[i]->GetNetValue() + (double)buyCount * price;
+        double ratioAfterRebalance = 100.0 * actNetAfterRebalance / totalAddJoin;
+        addValue = (double) buyCount * price;
+        totalJoin += addValue;
+
+        ui->tableWidget->setItem(i, static_cast<size_t>(7), new QTableWidgetItem(QString::number(addValue)));
+        ui->tableWidget->setItem(i, static_cast<size_t>(8), new QTableWidgetItem(QString::number(buyCount)));
+        ui->tableWidget->setItem(i, static_cast<size_t>(9), new QTableWidgetItem(QString::number(actNetAfterRebalance)));
+        ui->tableWidget->setItem(i, static_cast<size_t>(10), new QTableWidgetItem(QString::number(ratioAfterRebalance)));
+    }
+    ui->label_3->setText("Actual Join Dollars is: " + QString::number(totalJoin));
+    ui->label_3->setVisible(true);
 }
 
 void LoadPortfolioWidget::onAddStockClicked()
@@ -118,8 +160,9 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     ui->tableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Net Value"));
     ui->tableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem("Return(%)"));
     ui->tableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem("Current Ratio(%)"));
+    ui->tableWidget->resizeColumnToContents(6);
 
-    double totalVal = 0.0;
+    m_TotalVal = 0.0;
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
         double price = m_vStockInfo[i]->GetCurrentPrice();
         double netVal = m_vStockInfo[i]->GetNetValue();
@@ -128,14 +171,14 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
         vPrice.push_back(price);
         vNetVal.push_back(netVal);
         vReturn.push_back(return_rate);
-        totalVal += netVal;
+        m_TotalVal += netVal;
     }
 
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
         ui->tableWidget->setItem(i, static_cast<size_t>(3), new QTableWidgetItem(QString::number(vPrice[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(4), new QTableWidgetItem(QString::number(vNetVal[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(5), new QTableWidgetItem(QString::number(vReturn[i])));
-        ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(100.0 * vNetVal[i]/totalVal)));
+        ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(100.0 * vNetVal[i]/m_TotalVal)));
     }
 
     ui->pushButton_2->setEnabled(true);
