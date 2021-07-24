@@ -70,7 +70,8 @@ void LoadPortfolioWidget::onRebalanceClicked()
         ui->tableWidget->setItem(i, static_cast<size_t>(9), new QTableWidgetItem(QString::number(actNetAfterRebalance)));
         ui->tableWidget->setItem(i, static_cast<size_t>(10), new QTableWidgetItem(QString::number(ratioAfterRebalance)));
     }
-    ui->label_3->setText("Actual Join Dollars is: " + QString::number(totalJoin));
+    ui->label_3->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn) +
+                         "%, Actual Join Dollars is: " + QString::number(totalJoin));
     ui->label_3->setVisible(true);
 }
 
@@ -162,17 +163,22 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     ui->tableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem("Current Ratio(%)"));
     ui->tableWidget->resizeColumnToContents(6);
 
+    double beforeVal = 0.0;
     m_TotalVal = 0.0;
+    m_PortfolioReturn = 0.0;
+
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
+        beforeVal += m_vStockInfo[i]->GetFirstPrice() * m_vStockInfo[i]->GetHolding();
         double price = m_vStockInfo[i]->GetCurrentPrice();
         double netVal = m_vStockInfo[i]->GetNetValue();
-        double return_rate = 100.0 * ((m_vStockInfo[i]->GetCurrentPrice() / m_vStockInfo[i]->GetFirstPrice())-1);
-
+        double return_rate = 100.0 * ((m_vStockInfo[i]->GetCurrentPrice() / m_vStockInfo[i]->GetFirstPrice())-1.0);
         vPrice.push_back(price);
         vNetVal.push_back(netVal);
         vReturn.push_back(return_rate);
         m_TotalVal += netVal;
+
     }
+    m_PortfolioReturn = 100.0 * ((m_TotalVal / beforeVal) - 1.0);
 
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
         ui->tableWidget->setItem(i, static_cast<size_t>(3), new QTableWidgetItem(QString::number(vPrice[i])));
@@ -185,6 +191,8 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     ui->label->setVisible(true);
     ui->lineEdit->setVisible(true);
     ui->pushButton_3->setVisible(true);
+    ui->label_3->setVisible(true);
+    ui->label_3->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn));
 }
 
 

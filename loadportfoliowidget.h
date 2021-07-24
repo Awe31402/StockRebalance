@@ -38,6 +38,7 @@ private:
     vector<StockInfo*> m_vStockInfo;
     LoadSockInfoWorker *m_pLoadStockInfoWorker;
     double m_TotalVal;
+    double m_PortfolioReturn;
 };
 
 #endif // LOADPORTFOLIOWIDGET_H

@@ -24,7 +24,7 @@
     <widget class="QTabWidget" name="horizontalTabWidget">
      <widget class="QWidget" name="horizontalTabWidgetPage1">
       <attribute name="title">
-       <string/>
+       <string>Portfoio</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <property name="rightMargin">

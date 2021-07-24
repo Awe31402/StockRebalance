@@ -33,7 +33,8 @@ SOURCES += \
     spot.cpp \
     time_utils.cpp \
     stockinfo.cpp \
-    loadsockinfoworker.cpp
+    loadsockinfoworker.cpp \
+    sotockvaluewave.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,11 +44,13 @@ HEADERS += \
     spot.hpp \
     time_utils.hpp \
     stockinfo.h \
-    loadsockinfoworker.h
+    loadsockinfoworker.h \
+    sotockvaluewave.h
 
 FORMS += \
         mainwindow.ui \
-    loadportfoliowidget.ui
+    loadportfoliowidget.ui \
+    sotockvaluewave.ui
 
 LIBS += -lcurl
 # Default rules for deployment.
