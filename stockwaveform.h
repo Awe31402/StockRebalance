@@ -26,6 +26,7 @@ private:
     vector<StockInfo*> m_vStockInfo;
     vector<double> m_vPortfolioNetVal;
     vector<double> m_vPortfolioReturn;
+    vector<double> m_vTimeData;
 
     QString m_DataType;
     QString m_StockName;

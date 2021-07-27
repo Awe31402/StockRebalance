@@ -195,15 +195,13 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
 
     QWidget* widget = ui->horizontalTabWidget->widget(1);
 
-    if (widget == nullptr) {
-        StockWaveForm *newForm = new StockWaveForm(this);
-        newForm->SetStockInfo(m_vStockInfo);
-        ui->horizontalTabWidget->addTab(newForm, "Plots");
-    } else {
-        StockWaveForm* waveformWidget = dynamic_cast<StockWaveForm*>(widget);
-        if (waveformWidget != nullptr)
-            waveformWidget->SetStockInfo(m_vStockInfo);
+    if (widget != nullptr) {
+        ui->horizontalTabWidget->removeTab(1);
     }
+
+    StockWaveForm *newForm = new StockWaveForm(this);
+    newForm->SetStockInfo(m_vStockInfo);
+    ui->horizontalTabWidget->addTab(newForm, "Plots");
 
     ui->pushButton_2->setEnabled(true);
     ui->label->setVisible(true);
@@ -211,7 +209,7 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     ui->pushButton_3->setVisible(true);
     ui->label_4->setVisible(true);
     ui->label_4->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn)
-                         + ",Net Value Before Rebalance " + QString::number(m_TotalVal));
+                         + ", Net Value Before Rebalance " + QString::number(m_TotalVal));
 
 }
 
