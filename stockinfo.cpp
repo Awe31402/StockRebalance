@@ -71,7 +71,68 @@ double StockInfo::GetFirstPrice()
     return spot.getAdjClose();
 }
 
-double StockInfo::GetNetValue()
+double StockInfo::GetCurrentNetValue()
 {
-    return GetHolding() * GetCurrentPrice();
+    return static_cast<double>(GetHolding()) * GetCurrentPrice();
+}
+
+vector<double> StockInfo::GetPrices()
+{
+    vector<double> ret;
+
+    for (size_t i = 0; i < m_Quote->nbSpots(); i++) {
+        Spot spot = m_Quote->getSpot(i);
+        ret.push_back(spot.getAdjClose());
+    }
+
+    return ret;
+}
+
+vector<double> StockInfo::GetNetValues()
+{
+    vector<double> ret;
+
+    for (size_t i = 0; i < m_Quote->nbSpots(); i++) {
+        Spot spot = m_Quote->getSpot(i);
+        ret.push_back(m_Holding * spot.getAdjClose());
+    }
+
+    return ret;
+}
+
+vector<double> StockInfo::GetReturnRates()
+{
+    vector<double> ret;
+    double firstPrice = GetFirstPrice();
+
+    for (size_t i = 0; i < m_Quote->nbSpots(); i++) {
+        Spot spot = m_Quote->getSpot(i);
+        ret.push_back(100.0 * (spot.getAdjClose() / firstPrice - 1));
+    }
+
+    return ret;
+}
+
+vector<time_t> StockInfo::GetDates()
+{
+    vector<time_t> ret;
+
+    for (size_t i = 0; i < m_Quote->nbSpots(); i++) {
+        Spot spot = m_Quote->getSpot(i);
+        ret.push_back(spot.getDate());
+    }
+
+    return ret;
+}
+
+vector<string> StockInfo::GetDateStrs()
+{
+    vector<string> ret;
+
+    for (size_t i = 0; i < m_Quote->nbSpots(); i++) {
+        Spot spot = m_Quote->getSpot(i);
+        ret.push_back(spot.getDateToString());
+    }
+
+    return ret;
 }

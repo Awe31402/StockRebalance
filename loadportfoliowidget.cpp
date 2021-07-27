@@ -21,6 +21,7 @@ LoadPortfolioWidget::LoadPortfolioWidget(QWidget *parent) :
     ui->lineEdit->setVisible(false);
     ui->pushButton_3->setVisible(false);
     ui->label_3->setVisible(false);
+    ui->label_4->setVisible(false);
 
     ui->dateEdit->setDate(QDate::currentDate().addMonths(-6));
 
@@ -57,11 +58,11 @@ void LoadPortfolioWidget::onRebalanceClicked()
         double targetRatio = ui->tableWidget->item(i, 2)->text().toDouble();
         double netAfterRebalance = totalAddJoin * targetRatio / 100.0;
 
-        double addValue = netAfterRebalance - m_vStockInfo[i]->GetNetValue();
+        double addValue = netAfterRebalance - m_vStockInfo[i]->GetCurrentNetValue();
         double price = m_vStockInfo[i]->GetCurrentPrice();
         int buyCount = static_cast<int> (floor( addValue/price));
-        double actNetAfterRebalance = m_vStockInfo[i]->GetNetValue() + (double)buyCount * price;
-        double ratioAfterRebalance = 100.0 * actNetAfterRebalance / totalAddJoin;
+        double actNetAfterRebalance = m_vStockInfo[i]->GetCurrentNetValue() + (double)buyCount * price;
+        double ratioAfterRebalance = (totalAddJoin == 0.0)? 0.0 : 100.0 * actNetAfterRebalance / totalAddJoin;
         addValue = (double) buyCount * price;
         totalJoin += addValue;
 
@@ -70,8 +71,8 @@ void LoadPortfolioWidget::onRebalanceClicked()
         ui->tableWidget->setItem(i, static_cast<size_t>(9), new QTableWidgetItem(QString::number(actNetAfterRebalance)));
         ui->tableWidget->setItem(i, static_cast<size_t>(10), new QTableWidgetItem(QString::number(ratioAfterRebalance)));
     }
-    ui->label_3->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn) +
-                         "%, Actual Join Dollars is: " + QString::number(totalJoin));
+    ui->label_3->setText("Actual Join Dollars is: " + QString::number(totalJoin)
+                         + ", Net Val after rebalalce: " + QString::number(m_TotalVal + totalJoin));
     ui->label_3->setVisible(true);
 }
 
@@ -105,6 +106,7 @@ void LoadPortfolioWidget::onAddStockClicked()
             ui->tableWidget->setItem(currentRow, i, item);
         }
     }
+    ui->label_4->setVisible(false);
     ui->pushButton_2->setEnabled(true);
 }
 
@@ -112,7 +114,9 @@ void LoadPortfolioWidget::onLoadDataClicked()
 {
     qDebug() << "Load Data Clicked";
     ui->pushButton_2->setEnabled(false);
+
     cleanStockInfoList();
+
     int tableRow = ui->tableWidget->rowCount();
     QDate today = QDate::currentDate();
     QDate lastRebalaceDate = ui->dateEdit->date();
@@ -170,31 +174,46 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
         beforeVal += m_vStockInfo[i]->GetFirstPrice() * m_vStockInfo[i]->GetHolding();
         double price = m_vStockInfo[i]->GetCurrentPrice();
-        double netVal = m_vStockInfo[i]->GetNetValue();
+        double netVal = m_vStockInfo[i]->GetCurrentNetValue();
         double return_rate = 100.0 * ((m_vStockInfo[i]->GetCurrentPrice() / m_vStockInfo[i]->GetFirstPrice())-1.0);
         vPrice.push_back(price);
         vNetVal.push_back(netVal);
         vReturn.push_back(return_rate);
         m_TotalVal += netVal;
-
     }
-    m_PortfolioReturn = 100.0 * ((m_TotalVal / beforeVal) - 1.0);
+    m_PortfolioReturn =(beforeVal == 0.0)? 0.0 : 100.0 * ((m_TotalVal / beforeVal) - 1.0);
 
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
+        double ratio = (m_TotalVal == 0.0)? 0.0 : 100.0 * vNetVal[i]/m_TotalVal;
+
+
         ui->tableWidget->setItem(i, static_cast<size_t>(3), new QTableWidgetItem(QString::number(vPrice[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(4), new QTableWidgetItem(QString::number(vNetVal[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(5), new QTableWidgetItem(QString::number(vReturn[i])));
-        ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(100.0 * vNetVal[i]/m_TotalVal)));
+        ui->tableWidget->setItem(i, static_cast<size_t>(6), new QTableWidgetItem(QString::number(ratio)));
+    }
+
+    QWidget* widget = ui->horizontalTabWidget->widget(1);
+
+    if (widget == nullptr) {
+        StockWaveForm *newForm = new StockWaveForm(this);
+        newForm->SetStockInfo(m_vStockInfo);
+        ui->horizontalTabWidget->addTab(newForm, "Plots");
+    } else {
+        StockWaveForm* waveformWidget = dynamic_cast<StockWaveForm*>(widget);
+        if (waveformWidget != nullptr)
+            waveformWidget->SetStockInfo(m_vStockInfo);
     }
 
     ui->pushButton_2->setEnabled(true);
     ui->label->setVisible(true);
     ui->lineEdit->setVisible(true);
     ui->pushButton_3->setVisible(true);
-    ui->label_3->setVisible(true);
-    ui->label_3->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn));
-}
+    ui->label_4->setVisible(true);
+    ui->label_4->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn)
+                         + ",Net Value Before Rebalance " + QString::number(m_TotalVal));
 
+}
 
 void LoadPortfolioWidget::onQueryStockProgress(QString stockName, int progress)
 {

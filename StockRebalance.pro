@@ -6,7 +6,11 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+
+greaterThan(QT_MAJOR_VERSION, 4): CONFIG += c++11
+lessThan(QT_MAJOR_VERSION, 5): QMAKE_CXXFLAGS += -std=c++11
+
 
 TARGET = StockRebalance
 TEMPLATE = app
@@ -34,7 +38,8 @@ SOURCES += \
     time_utils.cpp \
     stockinfo.cpp \
     loadsockinfoworker.cpp \
-    sotockvaluewave.cpp
+    stockwaveform.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,12 +50,13 @@ HEADERS += \
     time_utils.hpp \
     stockinfo.h \
     loadsockinfoworker.h \
-    sotockvaluewave.h
+    stockwaveform.h \
+    qcustomplot.h
 
 FORMS += \
         mainwindow.ui \
     loadportfoliowidget.ui \
-    sotockvaluewave.ui
+    stockwaveform.ui
 
 LIBS += -lcurl
 # Default rules for deployment.

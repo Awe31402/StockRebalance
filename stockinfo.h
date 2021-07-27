@@ -3,6 +3,7 @@
 #include <iostream>
 #include "quote.hpp"
 #include <QString>
+#include <vector>
 
 using namespace std;
 
@@ -18,7 +19,12 @@ public:
     double GetTargetRatio();
     double GetCurrentPrice();
     double GetFirstPrice();
-    double GetNetValue();
+    double GetCurrentNetValue();
+    vector<double> GetPrices();
+    vector<double> GetNetValues();
+    vector<double> GetReturnRates();
+    vector<time_t> GetDates();
+    vector<string> GetDateStrs();
 private:
     QString m_Name;
     QString m_StartDate;
@@ -28,7 +34,6 @@ private:
     int m_Holding;
     double m_CurrentPrice;
     double m_FirstPrice;
-    double m_NetValue;
     static int sRetryShot;
 };
 

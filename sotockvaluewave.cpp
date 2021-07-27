@@ -1,4 +1,4 @@
-#include "sotockvaluewave.h"
+#include "stockvaluewave.h"
 #include "ui_sotockvaluewave.h"
 
 SotockValueWave::SotockValueWave(QWidget *parent) :

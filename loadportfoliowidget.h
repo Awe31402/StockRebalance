@@ -14,6 +14,7 @@
 #include <vector>
 #include <stockinfo.h>
 #include "loadsockinfoworker.h"
+#include "stockwaveform.h"
 
 namespace Ui {
 class LoadPortfolioWidget;
@@ -36,6 +37,7 @@ private:
     void cleanStockInfoList();
     Ui::LoadPortfolioWidget *ui;
     vector<StockInfo*> m_vStockInfo;
+    vector<StockWaveForm*> m_vStockWaveForm;
     LoadSockInfoWorker *m_pLoadStockInfoWorker;
     double m_TotalVal;
     double m_PortfolioReturn;
