@@ -186,7 +186,6 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     for (size_t i = 0; i < m_vStockInfo.size(); i++) {
         double ratio = (m_TotalVal == 0.0)? 0.0 : 100.0 * vNetVal[i]/m_TotalVal;
 
-
         ui->tableWidget->setItem(i, static_cast<size_t>(3), new QTableWidgetItem(QString::number(vPrice[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(4), new QTableWidgetItem(QString::number(vNetVal[i])));
         ui->tableWidget->setItem(i, static_cast<size_t>(5), new QTableWidgetItem(QString::number(vReturn[i])));

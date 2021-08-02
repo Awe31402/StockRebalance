@@ -38,7 +38,8 @@ void StockWaveForm::SetStockInfo(vector<StockInfo*> vStockInfo)
 
     ui->comboBox->addItem("Portfolio");
     for (size_t i = 0; i < m_vPortfolioNetVal.size(); i++) {
-        double dReturn = 100.0 * (m_vPortfolioNetVal[i] / m_vPortfolioNetVal[0] - 1);
+        double dReturn = (m_vPortfolioNetVal[0] == 0.0)? 0.0 :
+                                                       100.0 * (m_vPortfolioNetVal[i] / m_vPortfolioNetVal[0] - 1);
         m_vPortfolioReturn.push_back(dReturn);
         m_vTimeData.push_back(vTimeData[i]);
     }
