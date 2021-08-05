@@ -61,9 +61,9 @@ void LoadPortfolioWidget::onRebalanceClicked()
         double addValue = netAfterRebalance - m_vStockInfo[i]->GetCurrentNetValue();
         double price = m_vStockInfo[i]->GetCurrentPrice();
         int buyCount = static_cast<int> (floor( addValue/price));
-        double actNetAfterRebalance = m_vStockInfo[i]->GetCurrentNetValue() + (double)buyCount * price;
+        double actNetAfterRebalance = m_vStockInfo[i]->GetCurrentNetValue() + static_cast<double> (buyCount) * price;
         double ratioAfterRebalance = (totalAddJoin == 0.0)? 0.0 : 100.0 * actNetAfterRebalance / totalAddJoin;
-        addValue = (double) buyCount * price;
+        addValue = static_cast<double> (buyCount) * price;
         totalJoin += addValue;
 
         ui->tableWidget->setItem(i, static_cast<size_t>(7), new QTableWidgetItem(QString::number(addValue)));
@@ -153,6 +153,7 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
         warningBox.setStandardButtons(QMessageBox::Close);
         ui->pushButton_2->setEnabled(true);
         cleanStockInfoList();
+        ui->label_4->setVisible(false);
         return;
     }
 
@@ -208,6 +209,7 @@ void LoadPortfolioWidget::onQueryStockInfoDone(int evNum)
     ui->pushButton_3->setVisible(true);
     ui->label_4->setVisible(true);
     ui->label_4->setText("Portfoio Return is: " + QString::number(m_PortfolioReturn)
+                         + "%, Earns: " + QString::number(m_TotalVal - beforeVal)
                          + ", Net Value Before Rebalance " + QString::number(m_TotalVal));
 
 }
@@ -216,6 +218,8 @@ void LoadPortfolioWidget::onQueryStockProgress(QString stockName, int progress)
 {
     ui->progressBar->setVisible(true);
     ui->progressBar->setValue(progress);
+    ui->label_4->setVisible(true);
+    ui->label_4->setText("Querying: " + stockName);
 }
 
 void LoadPortfolioWidget::cleanStockInfoList()
