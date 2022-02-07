@@ -76,6 +76,13 @@ void LoadPortfolioWidget::onRebalanceClicked()
     ui->label_3->setVisible(true);
 }
 
+enum {
+    COL_STOCK_NAME,
+    COL_CURRENT_HOLDING,
+    COL_RATIO,
+    COL_TOTAL
+};
+
 void LoadPortfolioWidget::onAddStockClicked()
 {
     QString strFileName = QFileDialog::getOpenFileName(this, tr("Open File"),
@@ -100,7 +107,7 @@ void LoadPortfolioWidget::onAddStockClicked()
         int currentRow = ui->tableWidget->rowCount();
         ui->tableWidget->insertRow(currentRow);
         wordList = line.split(",", QString::SkipEmptyParts);
-        for (int i = 0; i < wordList.size(); i++) {
+        for (int i = 0; i < COL_TOTAL; i++) {
             QTableWidgetItem *item = new QTableWidgetItem();
             item->setText(wordList[i].trimmed());
             ui->tableWidget->setItem(currentRow, i, item);
